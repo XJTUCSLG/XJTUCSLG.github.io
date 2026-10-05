@@ -53,9 +53,13 @@ npm run check    # 类型检查（astro check）
 > 如果 `npm install` 因为 postinstall 脚本被系统权限拦下，可以退一步：
 > `npm install --ignore-scripts`，esbuild 会直接使用平台可选依赖里的二进制。
 >
-> 已知问题（与本站内容无关）：某些 `astro@7.3.5 + vite@8.3.2 + pnpm 目录结构` 的组合下，
-> `astro sync`（`build` / `check` 的前置步骤）会在加载 glob loader 的 CJS 依赖 `picomatch` 时报
-> `require is not defined`。`npm run dev` 不受影响（dev 会预打包依赖）。
+> **本地已知问题（环境相关，不是站点问题）**：在 Windows + `astro@7.3.5 + vite@8.3.2` +
+> pnpm 目录结构下，`astro sync`（`build` / `check` 的前置步骤）会在加载 glob loader 的 CJS 依赖
+> `picomatch` 时报 `require is not defined`，于是这两个命令跑不起来。
+> `npm run dev` 不受影响（dev 会预打包依赖），所以本地开发照常。
+>
+> 同一个 commit 在 GitHub Actions（Ubuntu + npm）上 `astro build` **是成功的**，
+> 所以这是特定环境组合的问题，不是代码或内容的问题。
 >
 > 最小复现在 `.probe-ssr-cjs.mjs`、`.probe-ssr-cjs-2.mjs`、`.probe-external.mjs`、
 > `.repro-cjs-import.mjs` 与 `.tmp-vercheck/`，用 `node <file>` 直接跑。
@@ -162,8 +166,31 @@ src/
 
 ## 部署
 
-`.github/workflows/deploy.yml` 在推送到 `main` 后自动构建并发布到 GitHub Pages，
-需要在仓库 `Settings → Pages` 把 Source 设为 **GitHub Actions**。
+`.github/workflows/deploy.yml` 在推送到 `main` 后自动构建并发布到 GitHub Pages。
+它用的是官方那套：`withastro/action`（装依赖 → 构建 → 上传 Pages artifact）+ `actions/deploy-pages`。
+
+**部署前必须在仓库里手动开一次 Pages，这一步没法用 workflow 代替：**
+
+1. `Settings → Pages → Build and deployment → Source` 选 **GitHub Actions**。
+2. Pages 对**私有**仓库要求付费计划（Pro / Team / Enterprise）；免费计划只支持**公开**仓库。
+   反过来注意：源仓库即使是私有的，发布出来的站点**依然是公开可访问的**。
+
+没做第 1 步时的失败长这样 —— 构建是好的，只有部署这一步挂：
+
+```text
+Fetching artifact metadata for "github-pages" in this workflow run
+Found 1 artifact(s)
+Error: Creating Pages deployment failed
+Error: HttpError: Not Found
+Error: Failed to create deployment (status: 404) ... Ensure GitHub Pages has been enabled
+```
+
+`Found 1 artifact(s)` 说明构建和上传都成功了，404 只说明 Pages 站点还没被启用
+（`POST /repos/{owner}/{repo}/pages/deployments` 在未启用时返回 404）。
+
+顺带说明为什么不能在 workflow 里自动开：`actions/configure-pages` 有 `enablement` 开关，
+但它的文档明确写了 **`enablement` 需要 `GITHUB_TOKEN` 以外的 token**（PAT 或 GitHub App），
+所以用默认 token 的仓库没法自举，只能由管理员在设置里点一次。
 
 ## 授权
 

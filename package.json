@@ -1,0 +1,26 @@
+{
+  "name": "xjtucslg-101",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "XJTUCSLG 101 — 西安交通大学学生开源社区（非官方）的教学博客",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "astro": "^7.3.5",
+    "mermaid": "^12.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^5.9.0"
+  }
+}

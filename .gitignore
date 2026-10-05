@@ -29,6 +29,9 @@ sync-debug.log
 .DS_Store
 Thumbs.db
 
+# 抓取回来的第三方页面原始 HTML：只作本地核对用，不随仓库分发
+research/raw/
+
 # 工具会话的临时产物（探针脚本、抓取结果、session spill）
 .tnega/
 .tnega-skills/

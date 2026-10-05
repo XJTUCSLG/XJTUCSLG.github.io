@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NoteRow from '../../components/NoteRow.astro';
+import { coverageAll, getPostViews } from '../../lib/posts';
+import { STAGE_IDS, STAGES } from '../../tracks';
+
+const views = await getPostViews();
+const rows = coverageAll(views).filter((row) => row.written > 0);
+---
+
+<BaseLayout
+  title="笔记"
+  description="XJTUCSLG 101 的全部笔记，按方向分组。每篇都标了所属方向、层次（概念 / 实践 / 贯通）和方向内的编号。"
+>
+  <div class="container">
+    <header class="masthead">
+      <h1>笔记</h1>
+      <p class="lead">
+        共 {views.length} 篇，按方向排。每篇都标着它在哪个方向、哪一层、编号多少——
+        编号就是同一个方向里的阅读顺序。
+      </p>
+    </header>
+
+    <div class="filter" id="filter">
+      <div class="filter__group" role="group" aria-labelledby="filter-stage">
+        <span class="filter__label" id="filter-stage">层</span>
+        <button type="button" data-stage="*" aria-pressed="true">全部</button>
+        {
+          STAGE_IDS.map((stage) => (
+            <button type="button" data-stage={stage} aria-pressed="false">
+              {STAGES[stage].name}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="filter__group" role="group" aria-labelledby="filter-track">
+        <span class="filter__label" id="filter-track">方向</span>
+        <button type="button" data-track="*" aria-pressed="true">全部</button>
+        {
+          rows.map((row) => (
+            <button type="button" data-track={row.track.slug} aria-pressed="false">
+              {row.track.name}
+            </button>
+          ))
+        }
+      </div>
+
+      <span class="filter__count" id="filter-count">{views.length} 篇</span>
+    </div>
+
+    <div id="note-groups">
+      {
+        rows.map((row) => (
+          <section class="track-group" data-track={row.track.slug}>
+            <div class="band-head">
+              <h2>
+                <a href={`/tracks/${row.track.slug}/`}>{row.track.name}</a>
+              </h2>
+              <p class="note">{row.track.blurb}</p>
+            </div>
+
+            <ul class="note-list">
+              {STAGE_IDS.flatMap((stage) => row.cells[stage]).map((view) => (
+                <NoteRow view={view} />
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+
+    {
+      views.length === 0 && (
+        <p class="note" style="padding-block: 2rem;">
+          还没有公开的笔记。去<a href="/tracks/">方向</a>看看有哪些题目可以认领。
+        </p>
+      )
+    }
+  </div>
+
+  <script>
+    // 两个筛选条件（层 / 方向）在前端做交集，命中为 0 的方向整组隐藏。
+    // 也接受 /blog/?stage=practice&track=env 这类深链——首页有链接指过来。
+    const filter = document.getElementById('filter');
+    const counter = document.getElementById('filter-count');
+
+    if (filter && counter) {
+      const rows = Array.from(document.querySelectorAll<HTMLElement>('.note-row'));
+      const groups = Array.from(document.querySelectorAll<HTMLElement>('.track-group'));
+      const buttons = Array.from(filter.querySelectorAll<HTMLButtonElement>('button'));
+      const state = { stage: '*', track: '*' };
+
+      const applies = (key: 'stage' | 'track'): boolean =>
+        buttons.some((button) => button.dataset[key] === state[key]);
+
+      const apply = (): void => {
+        let shown = 0;
+
+        for (const row of rows) {
+          const match =
+            (state.stage === '*' || row.dataset.stage === state.stage) &&
+            (state.track === '*' || row.dataset.track === state.track);
+          row.hidden = !match;
+          if (match) shown += 1;
+        }
+
+        for (const group of groups) {
+          group.hidden = !group.querySelector('.note-row:not([hidden])');
+        }
+
+        counter.textContent = `${shown} 篇`;
+        for (const button of buttons) {
+          const key = button.dataset.stage !== undefined ? 'stage' : 'track';
+          button.setAttribute('aria-pressed', String(state[key] === button.dataset[key]));
+        }
+      };
+
+      filter.addEventListener('click', (event) => {
+        const button = (event.target as HTMLElement).closest('button');
+        if (!button) return;
+        if (button.dataset.stage !== undefined) state.stage = button.dataset.stage;
+        if (button.dataset.track !== undefined) state.track = button.dataset.track;
+        apply();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const stage = params.get('stage');
+      const track = params.get('track');
+      if (stage && applies('stage')) state.stage = stage;
+      if (track && applies('track')) state.track = track;
+      if (state.stage !== '*' || state.track !== '*') apply();
+    }
+  </script>
+</BaseLayout>

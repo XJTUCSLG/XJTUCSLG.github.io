@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { LINKS } from '../consts';
+import { getPostViews } from '../lib/posts';
+import { getEssayViews } from '../lib/essays';
+import { STAGES, STAGE_IDS, TRACKS } from '../tracks';
+
+const views = await getPostViews();
+const essays = await getEssayViews();
+
+/** 每个方向里挑一篇作为入口：优先概念层，没有就取这个方向最早的一篇 */
+const entries = TRACKS.map((track) => {
+  const inTrack = views.filter((view) => view.post.data.track === track.slug);
+  const first = inTrack.find((view) => view.stage === 'concept') ?? inTrack[0];
+  return { track, first };
+}).filter((entry) => entry.first !== undefined);
+
+const beginner = entries.filter((entry) => entry.first!.stage === 'concept').slice(0, 4);
+---
+
+<BaseLayout
+  title="怎么读"
+  description="XJTUCSLG 101 的阅读方式：一个方向从概念到实践再到贯通，按编号顺序读；也可以只挑自己缺的那一层。"
+>
+  <div class="container">
+    <header class="masthead">
+      <h1>怎么读这个站</h1>
+      <p class="lead">
+        没人需要从头读到尾。下面写了三种走法，挑一种贴着你现在的处境走就行。
+      </p>
+    </header>
+  </div>
+
+  <section class="band">
+    <div class="container">
+      <div class="band-head">
+        <h2>走法一：按方向通读</h2>
+        <p class="note">适合「我知道这块完全没学过」。</p>
+      </div>
+      <p class="note">
+        挑一个方向，从第 1 层读起。方向页里同一层的几篇按编号（1.1、1.2）排序，
+        编号就是顺序。读完一层再看下一层，因为实践层默认你已经知道概念层在讲什么。
+      </p>
+      <ol class="stage-list" style="margin-top: 1.25rem;">
+        {
+          STAGE_IDS.map((stage) => (
+            <li>
+              <h3>{STAGES[stage].name}</h3>
+              <p>{STAGES[stage].blurb}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <div class="band-head">
+        <h2>走法二：只补缺的那一层</h2>
+        <p class="note">适合「概念我懂，就是没动过手」。</p>
+      </div>
+      <p class="note">
+        如果你已经在课上听过原理，直接跳到实践层。反过来，如果照着一个教程做过但说不清为什么，
+        回概念层把模型补上，比再抄一遍命令管用。
+      </p>
+      <ul class="tag-list" style="margin-top: 1rem;">
+        {STAGE_IDS.map((stage) => (
+          <li>
+            <a href={`/blog/?stage=${stage}`}>看所有「{STAGES[stage].name}」层的笔记</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <div class="band-head">
+        <h2>走法三：从贯通层往回找</h2>
+        <p class="note">适合「我想做个东西，但不知道自己还缺什么」。</p>
+      </div>
+      <p class="note">
+        贯通层写的是几个方向连起来用的场景。先看那篇，遇到不懂的地方再顺着链接补前置——
+        这条路比按顺序刷快，也是真实项目里补知识的方式。
+      </p>
+      {
+        entries.length > 0 && (
+          <ul class="tag-list" style="margin-top: 1rem;">
+            {entries.slice(0, 6).map((entry) => (
+              <li>
+                <a href={`/tracks/${entry.track.slug}/#integration`}>{entry.track.name}的贯通层</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <div class="band-head">
+        <h2>先读这几篇</h2>
+        <p class="note">
+          每个方向里最靠前的那一篇概念笔记。还没有任何笔记时这一块会空着——
+          那就先去<a href="/tracks/">方向</a>挑一个题目来写。
+        </p>
+      </div>
+
+      {
+        beginner.length > 0 ? (
+          <ul class="note-list">
+            {beginner.map((entry) => (
+              <li class="note-row" data-stage="concept" data-track={entry.track.slug}>
+                <div class="note-row__stage">
+                  <span class={`stage-mark stage-mark--${entry.first!.stage}`}>
+                    <span class="stage-mark__dot" aria-hidden="true" />
+                    {STAGES[entry.first!.stage].name}
+                  </span>
+                  <span class="code">{entry.first!.code}</span>
+                </div>
+                <div>
+                  <h3 class="note-row__title">
+                    <a href={entry.first!.href}>{entry.first!.post.data.title}</a>
+                  </h3>
+                  <p class="note-row__desc">{entry.first!.post.data.description}</p>
+                </div>
+                <div class="note-row__meta">
+                  <span>{entry.track.name}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="note">
+            目前还没有概念层的笔记，所以这里没有推荐。想看已经写好的，
+            去<a href="/blog/">笔记</a>列表。
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="band band--tight">
+    <div class="container">
+      <div class="band-head">
+        <h2>工程之外还有随笔</h2>
+        <a href="/essays/">全部随笔（{essays.length} 篇）</a>
+      </div>
+      <p class="note">
+        工程笔记要求能复现；随笔不承诺这个——它写的是判断和感受：
+        怎么选课、怎么安排时间、怎么在信息不足时做决定。
+      </p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <h2>这个站不写什么</h2>
+      <p class="note" style="margin-top: 0.6rem;">
+        不写考点速查、不写「三天精通」、不写只为面试存在的八股。原理课上有老师讲得比我们好，
+        我们只补另一半：把它用到能跑起来的代码里，会遇到什么。
+      </p>
+      <p class="note" style="margin-top: 0.6rem;">
+        路线本身也欢迎改：少了哪一站、顺序不对、你的方向没人写过，去
+        <a href={LINKS.newIssue} rel="noopener">仓库开一个 issue</a>，写清你现在卡在哪。
+      </p>
+      <div class="btn-row" style="margin-top: 1rem;">
+        <a class="btn btn--solid" href="/tracks/">看所有方向</a>
+        <a class="btn btn--line" href="/about/#write">一起写</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

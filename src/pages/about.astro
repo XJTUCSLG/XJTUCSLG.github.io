@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ESSAY_TOPICS, LINKS } from '../consts';
+import { coverageAll, getPostViews } from '../lib/posts';
+import { getEssayViews } from '../lib/essays';
+
+const views = await getPostViews();
+const essays = await getEssayViews();
+const coverage = coverageAll(views);
+const openCells = coverage.reduce(
+  (sum, row) => sum + (row.written === 0 ? 1 : 0) * 3 + row.planned,
+  0,
+);
+
+const facts = [
+  { label: '我们是谁', value: '西安交通大学的一群学生，自发组织的开源社区，不代表学校或任何院系。' },
+  { label: '在写什么', value: '课上不会讲、但写项目每天都在用的那部分：命令行、版本控制、后端、前端、部署、Agent 工具链。' },
+  { label: '怎么组织', value: '按方向（track）分，每个方向分概念、实践、贯通三层。缺的格子直接留在索引里，谁都能认领。' },
+  { label: '随笔是什么', value: '工程之外的一块自由空间：求学建议、大学生活、心态。它不要求能复现，只要求有一句自己的判断。' },
+  { label: '为什么叫 101', value: '在美国高校课号里 101 是入门课。我们想写的就是这种内容：第一节课，讲人话。' },
+  { label: '不写什么', value: '考点速查、三天精通、面试八股。原理课上有老师讲得比我们好，我们只补另一半。' },
+];
+---
+
+<BaseLayout
+  title="关于"
+  description="XJTUCSLG 是西安交通大学学生自发组织的开源社区（非官方）。这里说明我们在写什么、怎么加入、以及怎么一起写笔记。"
+>
+  <div class="container">
+    <header class="masthead">
+      <h1>关于这个站</h1>
+      <p class="lead">
+        一群已经上到大三大四的人回头看：把课程学明白和把东西做出来，中间隔着一大段没人教的距离。
+        这个站就是在补那一段，用「讲给同学听」的语气写。
+      </p>
+    </header>
+  </div>
+
+  <section class="band band--tight">
+    <div class="container">
+      <table class="meta-table">
+        <tbody>
+          {
+            facts.map((fact) => (
+              <tr>
+                <th scope="row">{fact.label}</th>
+                <td>{fact.value}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="band" id="join">
+    <div class="container">
+      <div class="band-head">
+        <h2>怎么加入</h2>
+        <p class="note">不限年级、专业、基础。我们更在意你愿不愿意把一件事讲清楚。</p>
+      </div>
+
+      <ol class="stage-list">
+        <li>
+          <h3>先读，先问</h3>
+          <p>
+            读几篇笔记。看到不懂的地方就在
+            <a href={LINKS.issues} rel="noopener">issue</a> 里问——提问本身就是贡献，
+            因为它暴露了我们没讲清的地方。
+          </p>
+        </li>
+        <li>
+          <h3>认领一格，或者写篇随笔</h3>
+          <p>
+            <a href="/tracks/">方向索引</a>里每一格都标着状态：写好的给链接，没写的是题目。
+            不擅长写技术也没关系，<a href="/essays/">随笔</a>同样缺稿。
+          </p>
+        </li>
+        <li>
+          <h3>带一个小改动进来</h3>
+          <p>
+            修一个错别字、补一句版本说明、给代码加一行注释都算。
+            流程见 <a href="/blog/first-open-source-pr/">第一个开源 PR</a>。
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="write">
+    <div class="container">
+      <div class="band-head">
+        <h2>写作规范只有三条</h2>
+        <p class="note">剩下的交给 review，我们会认真给意见，也会被认真反驳。</p>
+      </div>
+
+      <ol class="stage-list">
+        <li>
+          <h3>先写「为什么」</h3>
+          <p>开头两段讲清这篇解决什么问题、读者需要什么前置知识。别让人读到最后才发现不适用。</p>
+        </li>
+        <li>
+          <h3>步骤要能复现</h3>
+          <p>
+            命令、版本、目录结构写全。贴报错原文比贴「报了个错」有用一百倍。
+            随笔可以放宽这条，但仍要把数字和范围写清楚。
+          </p>
+        </li>
+        <li>
+          <h3>写人话</h3>
+          <p>术语第一次出现时解释一下。允许用比喻、允许写「我也卡了两小时」，但不许用没解释的缩写。</p>
+        </li>
+      </ol>
+
+      <h3 style="margin-top: 2rem;">怎么开一篇新的</h3>
+      <ol style="margin-top: 0.5rem; padding-left: 1.3em;">
+        <li>在 <a href={LINKS.newIssue} rel="noopener">issue</a> 里说明你想写什么（一句话就行）。</li>
+        <li>
+          Fork 仓库后，从两个模板里选一个复制到对应目录：
+          <code>src/content/_template.md</code> → <code>src/content/blog/</code>（工程笔记）；
+          <code>src/content/_essay-template.md</code> → <code>src/content/essays/</code>（随笔）。
+        </li>
+        <li>
+          填 frontmatter。工程笔记要填 <code>track</code>（方向，见 <code>src/tracks.ts</code>）和
+          <code>stage</code>（<code>concept</code> / <code>practice</code> / <code>integration</code>）；
+          随笔要填 <code>topic</code>（{ESSAY_TOPICS.join(' / ')}）。填错会在
+          <code>npm run dev</code> 时直接报错。
+        </li>
+        <li>本地 <code>npm run dev</code> 预览，确认排版、目录和代码块正常。</li>
+        <li>提 PR，标题写清主题；有人 review 后会合并上线。</li>
+      </ol>
+
+      <p class="note" style="margin-top: 1rem;">
+        现在共有 {views.length} 篇工程笔记、{essays.length} 篇随笔、{openCells} 个空格子待写。
+        加一篇之后，首页和方向页会自动更新——不需要另外去改哪个列表页。
+      </p>
+    </div>
+  </section>
+
+  <section class="band band--tight">
+    <div class="container">
+      <h2>找到我们</h2>
+      <div class="btn-row" style="margin-top: 0.75rem;">
+        <a class="btn btn--solid" href={LINKS.github} rel="noopener">GitHub 组织</a>
+        <a class="btn btn--line" href={LINKS.issues} rel="noopener">issue 列表</a>
+        <a class="btn btn--line" href={LINKS.rss}>RSS 订阅</a>
+      </div>
+      <p class="note" style="margin-top: 0.75rem;">
+        线下活动、群组等信息以组织主页公告为准。本站文字以 CC BY-SA 4.0 共享，代码以 MIT 授权。
+      </p>
+    </div>
+  </section>
+</BaseLayout>

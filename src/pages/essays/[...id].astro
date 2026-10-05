@@ -1,0 +1,146 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LINKS } from '../../consts';
+import { formatDate, isoDate, readingMinutes } from '../../lib/format';
+import { getEssayViews, type EssayView } from '../../lib/essays';
+
+export async function getStaticPaths() {
+  const views = await getEssayViews();
+  return views.map((view) => ({ params: { id: view.essay.id }, props: { view } }));
+}
+
+const { view } = Astro.props as { view: EssayView };
+const { essay } = view;
+
+const { Content, headings } = await render(essay);
+const minutes = essay.data.minutes ?? readingMinutes(essay.body);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+
+// 同栏目的其它随笔，给一个「接着读」的去处
+const all = await getEssayViews();
+const sameTopic = all.filter(
+  (item) => item.essay.data.topic === essay.data.topic && item.essay.id !== essay.id,
+);
+const others = all.filter((item) => item.essay.data.topic !== essay.data.topic).slice(0, 2);
+---
+
+<BaseLayout title={essay.data.title} description={essay.data.description} ogType="article">
+  <div class="container">
+    <header class="article-head">
+      <nav class="crumb" aria-label="位置">
+        <ol>
+          <li><a href="/essays/">随笔</a></li>
+          <li>{essay.data.topic}</li>
+        </ol>
+      </nav>
+
+      <h1>{essay.data.title}</h1>
+      <p class="standfirst">{essay.data.description}</p>
+
+      <table class="meta-table">
+        <tbody>
+          <tr>
+            <th scope="row">栏目</th>
+            <td>{essay.data.topic}</td>
+          </tr>
+          <tr>
+            <th scope="row">作者</th>
+            <td>{essay.data.authors.join('、') || '社区同学'}</td>
+          </tr>
+          <tr>
+            <th scope="row">发布于</th>
+            <td>
+              <time datetime={isoDate(essay.data.pubDate)}>{formatDate(essay.data.pubDate)}</time>
+            </td>
+          </tr>
+          {
+            essay.data.updatedDate && (
+              <tr>
+                <th scope="row">修订</th>
+                <td>
+                  <time datetime={isoDate(essay.data.updatedDate)}>
+                    {formatDate(essay.data.updatedDate)}
+                  </time>
+                </td>
+              </tr>
+            )
+          }
+          <tr>
+            <th scope="row">阅读</th>
+            <td>{minutes} 分钟</td>
+          </tr>
+          {
+            essay.data.tags.length > 0 && (
+              <tr>
+                <th scope="row">标签</th>
+                <td>{essay.data.tags.join(' · ')}</td>
+              </tr>
+            )
+          }
+        </tbody>
+      </table>
+    </header>
+
+    <div class="article-layout">
+      <article class="prose">
+        <Content />
+
+        {
+          sameTopic.length > 0 && (
+            <aside class="related">
+              <h2>{essay.data.topic}栏目还有</h2>
+              <ul>
+                {sameTopic.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.essay.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )
+        }
+
+        {
+          others.length > 0 && (
+            <aside class="related">
+              <h2>换个栏目</h2>
+              <ul>
+                {others.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.essay.data.title}</a>
+                    <span class="muted">（{item.essay.data.topic}）</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )
+        }
+      </article>
+
+      {
+        toc.length > 2 && (
+          <nav class="toc" aria-labelledby="toc-title">
+            <h2 class="toc__title" id="toc-title">本页内容</h2>
+            <ul>
+              {toc.map((heading) => (
+                <li class={`depth-${heading.depth}`}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+
+    <p class="article-foot">
+      这是一篇随笔，观点是作者自己的。
+      想补一段自己的经历，或者不同意某处？
+      <a href={`${LINKS.repo}/blob/main/src/content/essays/${essay.id}.md`} rel="noopener">
+        在 GitHub 上直接改这一页
+      </a>
+      ，或者<a href={LINKS.newIssue} rel="noopener">开一个 issue 讨论</a>。
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,35 @@
+---
+import type { EssayView } from '../lib/essays';
+import { formatCompactDate, isoDate } from '../lib/format';
+
+interface Props {
+  view: EssayView;
+  /** 已按栏目分组时，行里不用再重复栏目名 */
+  showTopic?: boolean;
+}
+
+const { view, showTopic = false } = Astro.props;
+const { essay, href, minutes } = view;
+---
+
+<li class="note-row note-row--essay">
+  <div>
+    <h3 class="note-row__title">
+      <a href={href}>{essay.data.title}</a>
+    </h3>
+    <p class="note-row__desc">{essay.data.description}</p>
+    {
+      showTopic && (
+        <p class="note-row__where">
+          {essay.data.topic}
+          {essay.data.tags.length > 0 && <span class="muted"> · {essay.data.tags.join(' · ')}</span>}
+        </p>
+      )
+    }
+  </div>
+
+  <div class="note-row__meta">
+    <time datetime={isoDate(essay.data.pubDate)}>{formatCompactDate(essay.data.pubDate)}</time>
+    <span>{minutes} 分钟</span>
+  </div>
+</li>

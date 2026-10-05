@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { LINKS } from '../consts';
+---
+
+<BaseLayout title="页面没找到" description="这个地址没有对应内容，可能链接过时了。">
+  <div class="container empty">
+    <h1>这个地址没有内容</h1>
+    <p class="lead">
+      链接可能过时了，或者这篇还没写。可以回首页看索引，也可以去方向页看看那一格是不是还空着。
+    </p>
+    <div class="btn-row">
+      <a class="btn btn--solid" href="/">回首页</a>
+      <a class="btn btn--line" href="/tracks/">看方向</a>
+      <a class="btn btn--line" href="/blog/">看笔记</a>
+      <a class="btn btn--line" href={LINKS.newIssue} rel="noopener">报告坏链接</a>
+    </div>
+  </div>
+</BaseLayout>

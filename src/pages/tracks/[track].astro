@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NoteRow from '../../components/NoteRow.astro';
+import { LINKS } from '../../consts';
+import { coverageOf, getPostViews, type PostView } from '../../lib/posts';
+import { formatCompactDate } from '../../lib/format';
+import { STAGES, STAGE_IDS, TRACKS } from '../../tracks';
+
+export async function getStaticPaths() {
+  return TRACKS.map((track) => ({ params: { track: track.slug }, props: { track } }));
+}
+
+const { track } = Astro.props;
+
+const views = await getPostViews();
+const row = coverageOf(track, views);
+
+const notes: PostView[] = STAGE_IDS.flatMap((stage) => row.cells[stage]);
+const latest =
+  notes.length > 0
+    ? notes.reduce((a, b) => (a.post.data.pubDate > b.post.data.pubDate ? a : b))
+    : undefined;
+
+const claimLink = (stage: (typeof STAGE_IDS)[number]) =>
+  `${LINKS.newIssue}?title=${encodeURIComponent(`想写：${track.name} · ${STAGES[stage].name}层`)}`;
+---
+
+<BaseLayout title={track.name} description={`${track.name}方向：${track.blurb}${track.why}`}>
+  <div class="container">
+    <header class="masthead">
+      <nav class="crumb" aria-label="位置">
+        <ol>
+          <li><a href="/tracks/">方向</a></li>
+          <li>{track.name}</li>
+        </ol>
+      </nav>
+
+      <h1>{track.name}</h1>
+      <p class="lead">{track.blurb}</p>
+      <p class="note">{track.why}</p>
+
+      <dl class="tally">
+        <div>
+          <dt>已写</dt>
+          <dd>{row.written}</dd>
+        </div>
+        <div>
+          <dt>待写</dt>
+          <dd>{row.planned}</dd>
+        </div>
+        {
+          latest && (
+            <div>
+              <dt>最近更新</dt>
+              <dd>{formatCompactDate(latest.post.data.pubDate)}</dd>
+            </div>
+          )
+        }
+      </dl>
+
+      <p class="note">
+        每一层都可以放很多篇，篇与篇是独立的文件——写一篇发一篇，不用凑齐。
+        层内的编号（1.1、1.2）就是阅读顺序，新写的一篇接在末尾。
+      </p>
+    </header>
+  </div>
+
+  {
+    STAGE_IDS.map((stage) => {
+      const written = row.cells[stage];
+      const plan = track.plan[stage];
+
+      return (
+        <section class="band band--tight" id={stage}>
+          <div class="container">
+            <div class="band-head">
+              <h2>
+                第 {STAGE_IDS.indexOf(stage) + 1} 层 · {STAGES[stage].name}
+                <span class="stage-cell__count">
+                  {written.length > 0 ? `${written.length} 篇` : '还没写'}
+                </span>
+              </h2>
+              <p class="note">{STAGES[stage].blurb}</p>
+            </div>
+
+            {written.length > 0 && (
+              <ul class="note-list" style="margin-bottom: 0.75rem;">
+                {written.map((view) => <NoteRow view={view} />)}
+              </ul>
+            )}
+
+            {plan.length > 0 && (
+              <>
+                <p class="plan-label">这一层排着队、还没人写的题目</p>
+                <ul class="plan-list">
+                  {plan.map((item) => (
+                    <li class="plan-item">
+                      <span class="plan-item__title">{item.title}</span>
+                      {item.note && <span class="plan-item__note">{item.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            <p class="note" style="margin-top: 0.6rem;">
+              {written.length === 0 ? '这一层还没开张。' : '这一层还能继续往下写。'}
+              <a href={claimLink(stage)} rel="noopener">开一个 issue 认领</a>。
+            </p>
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <section class="band band--tight">
+    <div class="container">
+      <h2>别的方向</h2>
+      <ul class="tag-list" style="margin-top: 0.75rem;">
+        {
+          TRACKS.filter((item) => item.slug !== track.slug).map((item) => (
+            <li>
+              <a href={`/tracks/${item.slug}/`}>{item.name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

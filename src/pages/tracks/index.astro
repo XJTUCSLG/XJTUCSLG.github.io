@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StageCells from '../../components/StageCells.astro';
+import { coverageAll, getPostViews } from '../../lib/posts';
+import { plannedCount, STAGES, STAGE_IDS, tracksByGroup } from '../../tracks';
+
+const views = await getPostViews();
+const coverage = coverageAll(views);
+const groups = tracksByGroup();
+
+const written = coverage.reduce((sum, row) => sum + row.written, 0);
+const planned = plannedCount();
+---
+
+<BaseLayout
+  title="方向"
+  description="XJTUCSLG 101 的全部方向：环境与命令行、Git、GitHub 协作、编辑器、后端、前端、数据库、部署、测试调试、Agent 工具链，每个方向都标明概念、实践、贯通三层写到哪了。"
+>
+  <div class="container">
+    <header class="masthead">
+      <h1>方向</h1>
+      <p class="lead">
+        一共 {coverage.length} 个方向，每个方向分概念、实践、贯通三层。已经写好的笔记给链接，
+        还没写的题目留在原地——灰着的那部分就是可以认领的活。
+      </p>
+      <dl class="tally">
+        <div>
+          <dt>已写笔记</dt>
+          <dd>{written}</dd>
+        </div>
+        <div>
+          <dt>待写题目</dt>
+          <dd>{planned}</dd>
+        </div>
+      </dl>
+    </header>
+  </div>
+
+  {
+    groups.map((group) => (
+      <section class="band">
+        <div class="container">
+          <div class="band-head">
+            <h2>{group.name}</h2>
+            <p class="note">{group.blurb}</p>
+          </div>
+
+          {group.tracks.map((track) => {
+            const row = coverage.find((item) => item.track.slug === track.slug)!;
+            return (
+              <article class="track-brief">
+                <div>
+                  <h3 class="track-brief__name">
+                    <a href={`/tracks/${track.slug}/`}>{track.name}</a>
+                  </h3>
+                  <p class="track-brief__blurb">{track.blurb}</p>
+                  <p class="track-brief__why">{track.why}</p>
+                </div>
+                <StageCells row={row} />
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="band">
+    <div class="container">
+      <h2>一个方向的三层，是什么意思</h2>
+      <ol class="stage-list" style="margin-top: 1.25rem;">
+        {
+          STAGE_IDS.map((stage) => (
+            <li>
+              <h3>{STAGES[stage].name}</h3>
+              <p>{STAGES[stage].blurb}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,43 @@
+---
+import type { PostView } from '../lib/posts';
+import { STAGES } from '../tracks';
+import { formatCompactDate, isoDate } from '../lib/format';
+
+interface Props {
+  view: PostView;
+  /** 列表已按方向分组时，行里不用再重复方向名 */
+  showTrack?: boolean;
+}
+
+const { view, showTrack = false } = Astro.props;
+const { post, href, minutes, stage, code, track } = view;
+---
+
+<li class="note-row" data-stage={stage} data-track={track.slug}>
+  <div class="note-row__stage">
+    <span class={`stage-mark stage-mark--${stage}`}>
+      <span class="stage-mark__dot" aria-hidden="true"></span>
+      {STAGES[stage].name}
+    </span>
+    <span class="code">{code}</span>
+  </div>
+
+  <div>
+    <h3 class="note-row__title">
+      <a href={href}>{post.data.title}</a>
+    </h3>
+    <p class="note-row__desc">{post.data.description}</p>
+    {
+      showTrack && (
+        <p class="note-row__where">
+          <a href={`/tracks/${track.slug}/`}>{track.name}</a>
+        </p>
+      )
+    }
+  </div>
+
+  <div class="note-row__meta">
+    <time datetime={isoDate(post.data.pubDate)}>{formatCompactDate(post.data.pubDate)}</time>
+    <span>{minutes} 分钟</span>
+  </div>
+</li>

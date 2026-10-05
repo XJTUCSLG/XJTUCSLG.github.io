@@ -1,0 +1,56 @@
+---
+import type { TrackCoverage } from '../lib/posts';
+import { STAGES, STAGE_IDS } from '../tracks';
+
+interface Props {
+  row: TrackCoverage;
+  /** 计划条目是否显示那句「打算怎么写」的说明 */
+  showPlanNotes?: boolean;
+}
+
+const { row, showPlanNotes = false } = Astro.props;
+---
+
+<div class="track-brief__stages">
+  {
+    STAGE_IDS.map((stage) => {
+      const notes = row.cells[stage];
+      const plan = row.track.plan[stage];
+      const empty = notes.length === 0 && plan.length === 0;
+
+      return (
+        <section class="stage-cell">
+          <h4 class="stage-cell__name">
+            {STAGES[stage].name}
+            <span class="stage-cell__count">
+              {notes.length > 0 ? `${notes.length} 篇` : empty ? '空着' : '还没写'}
+            </span>
+          </h4>
+
+          {notes.length > 0 && (
+            <ul>
+              {notes.map((view) => (
+                <li>
+                  <a href={view.href}>{view.post.data.title}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {plan.length > 0 && (
+            <ul class="plan-list">
+              {plan.map((item) => (
+                <li class="plan-item">
+                  <span class="plan-item__title">{item.title}</span>
+                  {showPlanNotes && item.note && <span class="plan-item__note"> {item.note}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {empty && <p class="note">这一层还没有题目。</p>}
+        </section>
+      );
+    })
+  }
+</div>

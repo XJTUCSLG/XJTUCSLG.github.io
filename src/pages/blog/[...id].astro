@@ -1,0 +1,203 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LINKS } from '../../consts';
+import { formatDate, isoDate, readingMinutes } from '../../lib/format';
+import { getPostViews, neighbours, prereqsOf, relatedPosts } from '../../lib/posts';
+import { STAGES, stageOrder } from '../../tracks';
+
+export async function getStaticPaths() {
+  const views = await getPostViews();
+  // id 可能带子目录，所以文件名用剩余参数 [...id]
+  return views.map((view) => ({ params: { id: view.post.id }, props: { view } }));
+}
+
+const { view } = Astro.props;
+const { post, stage, code, track } = view;
+
+const { Content, headings } = await render(post);
+const minutes = post.data.minutes ?? readingMinutes(post.body);
+
+// 目录只收 h2 / h3
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+
+const all = await getPostViews();
+const { prev, next } = neighbours(view, all);
+const prereqs = prereqsOf(view, all);
+
+// 同方向的另外几篇单独列；「相关」只放别的方向，避免同一个链接出现两次
+const sameTrack = all.filter(
+  (item) => item.post.data.track === track.slug && item.post.id !== post.id,
+);
+const related = relatedPosts(view, all, 6)
+  .filter((item) => item.post.data.track !== track.slug)
+  .slice(0, 3);
+
+const meta = [
+  {
+    label: '这篇是',
+    value: `${track.name} · 第 ${stageOrder(stage)} 层（${STAGES[stage].name}）`,
+    suffix: code,
+  },
+  { label: '作者', value: post.data.authors.join('、') || '社区同学' },
+  { label: '发布于', value: formatDate(post.data.pubDate), datetime: isoDate(post.data.pubDate) },
+  ...(post.data.updatedDate
+    ? [
+        {
+          label: '修订',
+          value: formatDate(post.data.updatedDate),
+          datetime: isoDate(post.data.updatedDate),
+        },
+      ]
+    : []),
+  { label: '阅读', value: `${minutes} 分钟` },
+];
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} ogType="article">
+  <div class="container">
+    <header class="article-head">
+      <nav class="crumb" aria-label="位置">
+        <ol>
+          <li><a href="/blog/">笔记</a></li>
+          <li><a href={`/tracks/${track.slug}/`}>{track.name}</a></li>
+          <li>{STAGES[stage].name}</li>
+        </ol>
+      </nav>
+
+      <h1>{post.data.title}</h1>
+      <p class="standfirst">{post.data.description}</p>
+
+      <table class="meta-table">
+        <tbody>
+          {
+            meta.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                <td>
+                  {row.datetime ? <time datetime={row.datetime}>{row.value}</time> : row.value}
+                  {'suffix' in row && row.suffix && <span class="code meta-table__code">{row.suffix}</span>}
+                </td>
+              </tr>
+            ))
+          }
+          {
+            prereqs.length > 0 && (
+              <tr>
+                <th scope="row">前置</th>
+                <td>
+                  <ul class="tag-list" style="display: inline-flex;">
+                    {prereqs.map((item) => (
+                      <li>
+                        <a href={item.href}>{item.post.data.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            )
+          }
+          {
+            post.data.tags.length > 0 && (
+              <tr>
+                <th scope="row">标签</th>
+                <td>
+                  <ul class="tag-list" style="display: inline-flex;">
+                    {post.data.tags.map((tag) => (
+                      <li>
+                        <a href={`/blog/#${encodeURIComponent(tag)}`}>{tag}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            )
+          }
+        </tbody>
+      </table>
+    </header>
+
+    <div class="article-layout">
+      <article class="prose">
+        <Content />
+
+        {
+          (prev || next) && (
+            <div class="next-up">
+              {prev && (
+                <div class="next-up__item">
+                  <span class="next-up__label">上一篇 · {prev.code}</span>
+                  <a href={prev.href}>{prev.post.data.title}</a>
+                </div>
+              )}
+              {next && (
+                <div class="next-up__item">
+                  <span class="next-up__label">下一篇 · {next.code}</span>
+                  <a href={next.href}>{next.post.data.title}</a>
+                </div>
+              )}
+            </div>
+          )
+        }
+
+        {
+          sameTrack.length > 0 && (
+            <aside class="related">
+              <h2>{track.name}方向的其他笔记</h2>
+              <ul>
+                {sameTrack.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.post.data.title}</a>{' '}
+                    <span class="muted">
+                      （{item.code} · {STAGES[item.stage].name}）
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )
+        }
+
+        {
+          related.length > 0 && (
+            <aside class="related">
+              <h2>别的方向里相关的</h2>
+              <ul>
+                {related.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.post.data.title}</a>{' '}
+                    <span class="muted">（{item.track.name}）</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )
+        }
+      </article>
+
+      {
+        toc.length > 2 && (
+          <nav class="toc" aria-labelledby="toc-title">
+            <h2 class="toc__title" id="toc-title">本页内容</h2>
+            <ul>
+              {toc.map((heading) => (
+                <li class={`depth-${heading.depth}`}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+
+    <p class="article-foot">
+      发现写错、版本过时，或者某个概念还是没讲明白？
+      <a href={`${LINKS.repo}/blob/main/src/content/blog/${post.id}.md`} rel="noopener">
+        在 GitHub 上直接改这一页
+      </a>
+      ，或者<a href={LINKS.newIssue} rel="noopener">提一个 issue</a>。 写这一篇时发现的相关题目，
+      也欢迎一起补进<a href={`/tracks/${track.slug}/`}>{track.name}</a>。
+    </p>
+  </div>
+</BaseLayout>

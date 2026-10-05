@@ -1,0 +1,149 @@
+---
+import { SITE } from '../consts';
+import Seo from '../components/Seo.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  isHome?: boolean;
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, isHome = false, ogType = 'website' } = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo title={title} description={description} isHome={isHome} ogType={ogType} />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    <slot name="scripts" />
+
+    <script>
+      /**
+       * Mermaid 渲染。
+       *
+       * ```mermaid 代码块先被当成普通代码块输出（没有 JS 时读者看到的是源码，
+       * 这比一片空白好），然后在这里换成图。
+       *
+       * 四条原则：
+       * 1. 只有页面上真的有图时才去下载 mermaid（动态 import，独立 chunk）。
+       * 2. 主题跟着站点走：颜色从 :root 的 CSS 变量里读，
+       *    改 global.css 的令牌，图和页面会一起变。
+       * 3. securityLevel 用 loose：strict 会把标签里的 HTML 转义，`<br/>` 换行直接失效。
+       *    这里换不来额外的安全——Markdown 本来就允许写裸 HTML，作者能改的是同一个仓库。
+       * 4. 一张图渲染失败只影响它自己：源码留在原地并标出来，不把整块变成空白。
+       */
+      const blocks = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          'pre[data-language="mermaid"], pre > code.language-mermaid',
+        ),
+      ).map((node) => (node.tagName === 'CODE' ? node.parentElement! : node));
+
+      if (blocks.length > 0) {
+        // 先把源码搬进 <pre class="mermaid">，mermaid 只认这一种容器
+        const figures: HTMLElement[] = [];
+        const targets: HTMLElement[] = [];
+
+        for (const block of blocks) {
+          const source = block.querySelector('code')?.textContent ?? block.textContent ?? '';
+
+          const figure = document.createElement('figure');
+          figure.className = 'diagram';
+
+          const pre = document.createElement('pre');
+          pre.className = 'mermaid';
+          pre.textContent = source.trim();
+
+          figure.append(pre);
+          block.replaceWith(figure);
+          figures.push(figure);
+          targets.push(pre);
+        }
+
+        const styles = getComputedStyle(document.documentElement);
+        const token = (name: string, fallback: string) =>
+          styles.getPropertyValue(name).trim() || fallback;
+        const sans = token('--font-sans', 'sans-serif');
+
+        import('mermaid')
+          .then(async ({ default: mermaid }) => {
+            mermaid.initialize({
+              startOnLoad: false,
+              // base 主题才吃下面的 themeVariables
+              theme: 'base',
+              securityLevel: 'loose',
+              fontFamily: sans,
+              flowchart: { useMaxWidth: true, curve: 'basis', htmlLabels: true },
+              sequence: { useMaxWidth: true },
+              themeVariables: {
+                background: 'transparent',
+                fontFamily: sans,
+                fontSize: '15px',
+                // 节点 = 站点的「纸面」，强调色只落在边框上
+                primaryColor: token('--accent-wash', '#e3ebe6'),
+                primaryBorderColor: token('--accent', '#0e5b43'),
+                primaryTextColor: token('--ink', '#16181a'),
+                mainBkg: token('--accent-wash', '#e3ebe6'),
+                nodeBorder: token('--accent', '#0e5b43'),
+                nodeTextColor: token('--ink', '#16181a'),
+                // 次级元素压成中性灰
+                textColor: token('--ink-2', '#3a4247'),
+                titleColor: token('--ink', '#16181a'),
+                secondaryColor: token('--sunken', '#e7e9ea'),
+                secondaryBorderColor: token('--rule-strong', '#b9bec1'),
+                secondaryTextColor: token('--ink-2', '#3a4247'),
+                tertiaryColor: token('--sheet', '#ffffff'),
+                tertiaryBorderColor: token('--rule', '#d3d6d8'),
+                tertiaryTextColor: token('--ink-2', '#3a4247'),
+                clusterBkg: token('--sheet', '#ffffff'),
+                clusterBorder: token('--rule', '#d3d6d8'),
+                edgeLabelBackground: token('--paper', '#f0f1f2'),
+                lineColor: token('--rule-strong', '#b9bec1'),
+                // 时序图
+                actorBkg: token('--accent-wash', '#e3ebe6'),
+                actorBorder: token('--accent', '#0e5b43'),
+                actorTextColor: token('--ink', '#16181a'),
+                signalColor: token('--ink-2', '#3a4247'),
+                signalTextColor: token('--ink-2', '#3a4247'),
+                labelBoxBkgColor: token('--sheet', '#ffffff'),
+                labelBoxBorderColor: token('--rule', '#d3d6d8'),
+                noteBkgColor: token('--sunken', '#e7e9ea'),
+                noteBorderColor: token('--rule', '#d3d6d8'),
+                noteTextColor: token('--ink-2', '#3a4247'),
+                activationBkgColor: token('--sunken', '#e7e9ea'),
+                activationBorderColor: token('--accent', '#0e5b43'),
+              },
+            });
+
+            for (const target of targets) {
+              try {
+                await mermaid.run({ nodes: [target] });
+              } catch (error) {
+                target.dataset.render = 'failed';
+                console.error('[mermaid] 这张图没能渲染，源码已留在原位：', error);
+              }
+            }
+          })
+          .catch((error: unknown) => {
+            for (const target of targets) target.dataset.render = 'failed';
+            console.error('[mermaid] mermaid 没加载起来：', error);
+          });
+      }
+    </script>
+  </body>
+</html>

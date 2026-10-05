@@ -1,0 +1,35 @@
+---
+import { LINKS, NAV, SITE } from '../consts';
+
+// 当前路径（带末尾斜杠），用来给导航项加 aria-current
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/">
+      <span class="brand__mark" aria-hidden="true">101</span>
+      <span class="brand__text">
+        <span>{SITE.name}</span>
+        <span class="brand__sub">工程笔记 · 随笔</span>
+      </span>
+    </a>
+
+    <nav class="site-nav" aria-label="主导航">
+      {
+        NAV.map((item) => {
+          const active = path === item.href || path.startsWith(item.href);
+          return (
+            <a href={item.href} aria-current={active ? 'page' : undefined}>
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <a class="site-header__repo" href={LINKS.repo} rel="noopener">
+      GitHub
+    </a>
+  </div>
+</header>

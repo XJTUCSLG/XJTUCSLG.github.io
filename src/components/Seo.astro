@@ -1,0 +1,38 @@
+---
+import { SITE } from '../consts';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 首页用站点名做主标题，其余页面是「页面名 · 站点名」 */
+  isHome?: boolean;
+  /** 分享卡片类型，文章页设成 article */
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, isHome = false, ogType = 'website' } = Astro.props;
+
+const fullTitle = isHome ? `${SITE.name} · 从会做题到能把东西做出来` : `${title} · ${SITE.name}`;
+
+// canonical / og:url 用当前页面的规范地址
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<meta name="generator" content={Astro.generator} />
+<meta name="theme-color" content="#f0f1f2" />
+
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+
+<link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />

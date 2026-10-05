@@ -1,0 +1,43 @@
+---
+import { FOOTER_GROUPS, LINKS, SITE } from '../consts';
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <h2>{SITE.name}</h2>
+        <p class="site-footer__about">
+          西交大学生自发组织的开源社区，非官方。写课堂覆盖不到、但写项目每天都在用的东西；
+          工程之外还有随笔。
+        </p>
+      </div>
+
+      {
+        FOOTER_GROUPS.map((group) => (
+          <div>
+            <h2>{group.title}</h2>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href} rel={link.external ? 'noopener' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© 2026 XJTUCSLG。{SITE.tagline}</p>
+      <p>
+        文字以 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="noopener">
+          CC BY-SA 4.0
+        </a> 共享，代码以 MIT 授权。
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,632 @@
+/* ==========================================================================
+   页面级样式：刊头、起步路线、方向速览、三层、方向页、文章页、图表、空状态
+   ========================================================================== */
+
+/* ============================ 刊头 ============================ */
+
+.masthead {
+  padding-block: clamp(1.25rem, 2.5vw, 2rem) 1.25rem;
+}
+
+.masthead h1 {
+  margin-bottom: 0.6rem;
+}
+
+.masthead .lead + .lead {
+  margin-top: 0.6rem;
+}
+
+/* 一行真实数字，跟着刊头 —— 不做成统计卡片 */
+.tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.25rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.tally > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.tally dt {
+  color: var(--muted);
+}
+
+.tally dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.masthead > .container > .btn-row,
+.masthead .masthead__actions {
+  margin-top: 1rem;
+}
+
+/* ============================ 起步路线 ============================ */
+/* 首页的「一步步进来」：编号 + 竖线连成的路线图 */
+
+.start-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.start-steps > li {
+  position: relative;
+  padding: 0 0 1.1rem 1.75rem;
+}
+
+.start-steps > li:last-child {
+  padding-bottom: 0;
+}
+
+.start-steps > li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  left: -0.75rem;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.start-steps h3 {
+  margin-bottom: 0.2rem;
+  font-size: var(--fs-base);
+}
+
+.start-steps p {
+  max-width: 38rem;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.start-steps .start-steps__links {
+  margin-top: 0.35rem;
+  font-size: var(--fs-sm);
+}
+
+/* 路线图右侧：直接给出「现在就能点开的那一篇」 */
+.start-grid {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .start-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pick {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--sheet);
+  overflow: hidden;
+}
+
+.pick__head {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.pick ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pick li + li {
+  border-top: 1px solid var(--rule);
+}
+
+.pick a {
+  display: block;
+  padding: 0.5rem 0.8rem;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  text-decoration-color: transparent;
+}
+
+.pick a:hover {
+  text-decoration-color: currentColor;
+}
+
+.pick__meta {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+/* ============================ 方向速览 ============================ */
+/* 一屏看完整站：每个方向一行，三层各给一个小格 */
+
+.track-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  border-top: 1px solid var(--rule);
+}
+
+.track-grid > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.track-grid__name {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration-color: transparent;
+}
+
+.track-grid__name:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.track-grid__blurb {
+  display: block;
+  margin-top: 0.05rem;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* 三个小格：格里的数字是这一层已写的篇数，0 就是空的 */
+.coverage {
+  display: flex;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.coverage span {
+  display: grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.coverage span[data-filled='true'] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+/* ============================ 三层说明 ============================ */
+
+.stage-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.stage-list > li {
+  padding-top: 0.6rem;
+  border-top: 2px solid var(--ink);
+}
+
+.stage-list > li::before {
+  counter-increment: stage;
+  content: '第 ' counter(stage) ' 层';
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.stage-list h3 {
+  margin-bottom: 0.2rem;
+}
+
+.stage-list p {
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+/* ============================ 方向索引与方向页 ============================ */
+
+.track-brief {
+  display: grid;
+  gap: 0.6rem 2rem;
+  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  padding-block: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.track-brief:first-of-type {
+  border-top: 1px solid var(--rule-strong);
+}
+
+.track-brief__name {
+  font-size: 1.05rem;
+}
+
+.track-brief__name a {
+  color: var(--ink);
+  text-decoration-color: transparent;
+}
+
+.track-brief__name a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.track-brief__blurb {
+  margin-top: 0.2rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.track-brief__why {
+  margin-top: 0.3rem;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.track-brief__stages {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+@media (max-width: 860px) {
+  .track-brief {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-cell__name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.stage-cell__count {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.stage-cell ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.stage-cell li {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+/* ============================ 笔记列表页 ============================ */
+
+.track-group + .track-group {
+  margin-top: 1.75rem;
+}
+
+/* ============================ 文章页 ============================ */
+
+.article-head {
+  padding-block: clamp(1.25rem, 3vw, 2rem) 1.1rem;
+}
+
+.crumb {
+  margin-bottom: 0.6rem;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.crumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crumb li + li::before {
+  content: '/';
+  margin-right: 0.3rem;
+  color: var(--rule-strong);
+}
+
+.crumb a {
+  color: var(--muted);
+  text-decoration-color: transparent;
+}
+
+.crumb a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.article-head h1 {
+  margin-bottom: 0.6rem;
+}
+
+.standfirst {
+  max-width: 40rem;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+.article-head .meta-table {
+  max-width: 34rem;
+  margin-top: 1rem;
+}
+
+.meta-table__code {
+  margin-left: 0.5rem;
+}
+
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+  gap: 1.5rem 2.5rem;
+  align-items: start;
+  padding-block: 0.25rem 2.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 1000px) {
+  .article-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .toc {
+    order: -1;
+    position: static;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+}
+
+/* —— 正文：中文讲义体（宋体、16px、行长约 36 字） —— */
+
+.prose {
+  max-width: 36rem;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--ink);
+}
+
+.prose > * + * {
+  margin-top: 0.9em;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
+}
+
+.prose h2 {
+  margin-top: 2.1em;
+  padding-top: 0.6em;
+  border-top: 1px solid var(--rule);
+  font-size: 1.2rem;
+}
+
+.prose h3 {
+  margin-top: 1.6em;
+  font-size: 1.05rem;
+}
+
+.prose h4 {
+  margin-top: 1.3em;
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+
+.prose li + li {
+  margin-top: 0.25em;
+}
+
+.prose li::marker {
+  color: var(--muted);
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 0.15rem 0 0.15rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  color: var(--ink-2);
+}
+
+.prose blockquote p {
+  margin: 0;
+}
+
+.prose img {
+  border: 1px solid var(--rule);
+}
+
+.prose pre {
+  font-family: var(--font-mono);
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+}
+
+.prose th,
+.prose td {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose thead th {
+  background: var(--sunken);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.prose h2 a,
+.prose h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 文末的编辑入口 */
+.article-foot {
+  max-width: 36rem;
+  margin-top: 1.75rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ============================ 空状态与 404 ============================ */
+
+.empty {
+  padding-block: clamp(2rem, 6vw, 4rem);
+}
+
+.empty h1 {
+  margin-bottom: 0.5rem;
+}
+
+.empty .lead {
+  margin-bottom: 1.1rem;
+}
+
+/* ============================ 图表（mermaid） ============================ */
+/* 渲染前：源码留在纸面上；渲染后：mermaid 把 svg 塞进同一个 <pre>，撤掉框 */
+
+.diagram {
+  margin: 0;
+}
+
+.diagram figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
+
+pre.mermaid {
+  margin: 0;
+  padding: 1rem;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  text-align: center;
+  overflow-x: auto;
+}
+
+pre.mermaid[data-processed] {
+  padding: 0.25rem;
+  border-color: transparent;
+  background: transparent;
+}
+
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+pre.mermaid[data-render='failed'] {
+  border-style: dashed;
+  border-color: var(--rule-strong);
+  text-align: left;
+}
+
+pre.mermaid[data-render='failed']::before {
+  content: '这张图没能渲染，下面是它的源码';
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+/* 方向页每层底部：排队的题目 + 认领入口，收成一小块 */
+.stage-foot {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.stage-foot .plan-label {
+  margin-bottom: 0.4rem;
+}
+
+.stage-foot .note + .note {
+  margin-top: 0.5rem;
+}

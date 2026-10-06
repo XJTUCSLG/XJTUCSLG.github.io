@@ -4,7 +4,7 @@ description: 一两句话说明这篇解决什么问题、读者需要什么前�
 pubDate: 2026-01-01
 # updatedDate: 2026-02-01   # 改过内容时补上，会显示「修订」
 authors: ['你的昵称']
-track: env                   # 方向：见 src/tracks.ts。env / git / github / editor / backend / frontend / database / deploy / test / agent / cs / hardware / learning
+track: env                   # 方向：见 src/tracks.ts。env / git / github / editor / backend / frontend / database / deploy / test / agent / cs / learning
 stage: concept               # 层：concept（概念）| practice（实践）| integration（贯通）
 # order: 1                   # 同一格内的顺序。不写就按 pubDate 从早到晚，新的一篇自然排到末尾
 # prereq: ['git-github-workflow']   # 前置笔记的 id，会显示在文章开头的信息表里

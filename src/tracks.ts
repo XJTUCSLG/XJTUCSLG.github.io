@@ -107,7 +107,7 @@ export const TRACKS: Track[] = [
       integration: [
         {
           title: '团队里什么时候该开分支',
-          note: '分支模型不是信仰问题，是 review 与发布节奏的产物。',
+          note: '分支模型由 review 与发布节奏决定。',
         },
       ],
     },
@@ -116,13 +116,13 @@ export const TRACKS: Track[] = [
     slug: 'github',
     name: 'GitHub 与协作',
     group: 'engineering',
-    blurb: 'issue、PR、CI —— 一个项目公开协作的完整表面。',
+    blurb: 'issue、PR 和 CI，一个项目公开协作时用到的全部环节。',
     why: '课设是一个人交代码。真实项目里，代码要先被讨论、被 review、被流水线检查。',
     plan: {
       concept: [
         {
           title: 'issue、PR、CI 各自解决什么问题',
-          note: '三者不是流程装饰，各自对应一种具体的协作失败。',
+          note: '三者各自对应一种具体的协作失败。',
         },
       ],
       practice: [],
@@ -204,7 +204,7 @@ export const TRACKS: Track[] = [
     slug: 'database',
     name: '数据库',
     group: 'engineering',
-    blurb: '表结构、查询、索引 —— 数据是项目里活得最久的部分。',
+    blurb: '表结构、查询和索引。数据是项目里活得最久的部分。',
     why: '课上有数据库原理和 SQL 练习。真项目里没人给你现成的表结构，改起来还要考虑迁移。',
     plan: {
       concept: [
@@ -221,7 +221,7 @@ export const TRACKS: Track[] = [
     name: '部署与运维',
     group: 'engineering',
     blurb: '让代码在别人的机器上一直跑着。',
-    why: '课程作业跑在自己电脑上就算完成。上线之后的部分——进程、域名、证书、日志、备份——全在课外。',
+    why: '代码在自己电脑上能跑只是开始。上线之后还要管进程、域名、证书和备份。',
     plan: {
       concept: [
         { title: '服务器上跑起来需要哪些东西', note: '进程、端口、环境变量、反向代理，一次讲清。' },
@@ -250,7 +250,7 @@ export const TRACKS: Track[] = [
     slug: 'agent',
     name: 'Agent 与 LLM 工具链',
     group: 'engineering',
-    blurb: '把模型接进工程流，而不是只会用聊天框。',
+    blurb: '把模型接进工程流程，不止停在聊天框里。',
     why: '这门课还没有教材。但它是这两年新出现的、最像「工程问题」的一类问题：不确定性、成本、权限。',
     plan: {
       concept: [
@@ -268,31 +268,12 @@ export const TRACKS: Track[] = [
     slug: 'cs',
     name: '计算机基础',
     group: 'foundation',
-    blurb: '数据结构、复杂度、内存 —— 课程会讲，这里讲它在项目里的用法。',
+    blurb: '数据结构、复杂度和内存，以及它们在项目里怎么用。',
     why: '原理课给的是分析工具。真写代码时，它是「这么存合不合适」的判断依据。',
     plan: {
       concept: [],
       practice: [{ title: '数据结构怎么选：几个真实场景', note: '从需求倒推结构，而不是从课本倒推。' }],
       integration: [{ title: '内存、缓存与一次真实的性能优化', note: '先测量，再动手。' }],
-    },
-  },
-  {
-    slug: 'hardware',
-    name: '硬件与嵌入式',
-    group: 'foundation',
-    blurb: '让代码碰到现实世界：板子、外设、通信。',
-    why: '课程实验是照着指导书连线。自己做一个东西时，得从「要什么现象」反过来选器件和协议。',
-    plan: {
-      concept: [
-        {
-          title: '数字引脚上的电：电平、时序与时钟',
-          note: '先弄清「拉高拉低」在电路上到底发生了什么，之后再排错就不用靠猜。',
-        },
-      ],
-      practice: [
-        { title: '定时器与状态机：让板子同时做两件事', note: '从阻塞延时跳到非阻塞写法。' },
-      ],
-      integration: [{ title: '板子和上位机怎么通信', note: '从串口协议到上位机解析，两端一起写。' }],
     },
   },
   {
@@ -322,7 +303,6 @@ export const TRACK_SLUGS = [
   'test',
   'agent',
   'cs',
-  'hardware',
   'learning',
 ] as const;
 

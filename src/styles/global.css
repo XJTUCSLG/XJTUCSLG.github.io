@@ -53,7 +53,7 @@
   /* —— 纵向节奏：区块之间的呼吸，只有三个档 —— */
   --gap-1: 0.6rem;
   --gap-2: 1rem;
-  --gap-3: clamp(1.5rem, 3vw, 2.25rem);
+  --gap-3: clamp(1.75rem, 3.5vw, 2.75rem);
 }
 
 /* ============================ 基础 ============================ */
@@ -224,7 +224,7 @@ pre code {
 
 /* 紧凑区块：条目列表所在的小节用它，一行一条就够 */
 .band--tight {
-  padding-block: var(--gap-2);
+  padding-block: calc(var(--gap-2) + 0.25rem);
 }
 
 .lead {

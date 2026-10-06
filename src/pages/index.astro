@@ -6,155 +6,59 @@ import { LINKS, SITE } from '../consts';
 import { coverageAll, getPostViews } from '../lib/posts';
 import { getEssayViews } from '../lib/essays';
 import { formatCompactDate } from '../lib/format';
-import { plannedCount, STAGE_IDS, STAGES, TRACKS } from '../tracks';
+import { STAGE_IDS, STAGES, TRACKS } from '../tracks';
 
 const views = await getPostViews();
 const coverage = coverageAll(views);
 const essays = await getEssayViews();
 
 const written = views.length;
-const planned = plannedCount();
 const lastUpdate = views[0]?.post.data.pubDate;
 
-/** 每一层挑一篇当入口：概念层优先，没有再退到该层最早的一篇 */
-const pickFrom = (stage: (typeof STAGE_IDS)[number]) =>
-  views.filter((view) => view.stage === stage).slice(0, 1)[0];
-
-const picks = [
-  { label: '先看一篇概念', view: pickFrom('concept') },
-  { label: '再照着做一遍', view: pickFrom('practice') },
-  { label: '看看贯通层怎么写', view: pickFrom('integration') },
-].filter((item) => item.view !== undefined);
-
-const latest = views.slice(0, 4);
+const latest = views.slice(0, 3);
 const recentEssays = essays.slice(0, 2);
 
 /** 方向速览里用的小格：每层已写几篇 */
 const cellsOf = (slug: string) =>
   coverage.find((row) => row.track.slug === slug)!.cells;
+
+/** 首页速览不突出 hardware；完整列表仍在 /tracks/ */
+const homeTracks = TRACKS.filter((track) => track.slug !== 'hardware');
 ---
 
 <BaseLayout title="首页" description={SITE.description} isHome>
-  <!-- 刊头：一句话说清补的是什么，然后只给一个入口 -->
+  <!-- 刊头：身份 + 一句说明 + 一个主入口 -->
   <section class="masthead">
     <div class="container">
-      <h1>把工程开发那一半补上</h1>
+      <h1>写给 XJTUer 新生的 101</h1>
       <p class="lead">
-        课上讲原理，也讲给考试听。这里写另一部分：命令行、版本控制、后端、前端、部署、Agent 工具链——
-        写项目每天都要用，却没人开课。每个方向分<b>概念 → 实践 → 贯通</b>三层，一步一步往下走。
+        上课偏理论，就业和做项目却要工程这一层。我做了这个站，把命令行、Git、部署这些补上。
       </p>
 
       <div class="btn-row masthead__actions">
-        <a class="btn btn--solid" href="/roadmap/">从第一篇开始读</a>
-        <a class="btn btn--line" href="/tracks/">看方向索引</a>
-        <a class="btn btn--link" href="/essays/">随笔</a>
+        <a class="btn btn--solid" href="/roadmap/">从第一篇开始</a>
+        <a class="btn btn--line" href="/tracks/">方向</a>
       </div>
 
-      <dl class="tally">
-        <div>
-          <dt>方向</dt>
-          <dd>{TRACKS.length}</dd>
-        </div>
-        <div>
-          <dt>已写</dt>
-          <dd>{written}</dd>
-        </div>
-        <div>
-          <dt>待写</dt>
-          <dd>{planned}</dd>
-        </div>
-        {
-          lastUpdate && (
-            <div>
-              <dt>更新于</dt>
-              <dd>{formatCompactDate(lastUpdate)}</dd>
-            </div>
-          )
-        }
-      </dl>
+      {
+        lastUpdate && (
+          <p class="masthead__updated muted">更新于 {formatCompactDate(lastUpdate)}</p>
+        )
+      }
     </div>
   </section>
 
-  <!-- 起步路线：左边是三步，右边是「现在就能点开的三篇」 -->
+  <!-- 方向速览：名称 + 三层覆盖格 -->
   <section class="band">
     <div class="container">
       <div class="band-head">
-        <h2>第一次来，按这个顺序</h2>
-        <a href="/roadmap/">更细的读法</a>
-      </div>
-
-      <div class="start-grid">
-        <ol class="start-steps">
-          <li>
-            <h3>读一篇概念</h3>
-            <p>
-              不急着敲命令。先把「它在解决什么问题」搞清楚，
-              后面查文档、看报错都会顺很多。
-            </p>
-            <p class="start-steps__links">
-              <a href="/tracks/env/">从环境和命令行开始 →</a>
-            </p>
-          </li>
-          <li>
-            <h3>挑一个方向，顺着编号往下读</h3>
-            <p>
-              每个方向里，编号 1.1、1.2 就是阅读顺序：先概念、再实践、最后贯通。
-              同一层里写了几篇，按顺序读完就行。
-            </p>
-            <p class="start-steps__links">
-              <a href="/tracks/">全部 13 个方向 →</a>
-            </p>
-          </li>
-          <li>
-            <h3>照着做一遍，卡住就记下来</h3>
-            <p>
-              实践层的每篇都能照着做完。卡住的地方抄下报错原文，
-              去 issue 里问——这比读完十篇不动手有用。
-            </p>
-            <p class="start-steps__links">
-              <a href="/blog/?stage=practice">只看实践层 →</a>
-              <span class="muted">（列表页可按层和方向筛）</span>
-            </p>
-          </li>
-        </ol>
-
-        {
-          picks.length > 0 && (
-            <div class="pick">
-              <p class="pick__head">现在就能打开，共 {picks.length} 篇</p>
-              <ul>
-                {picks.map((item) => (
-                  <li>
-                    <a href={item.view!.href}>
-                      {item.view!.post.data.title}
-                      <span class="pick__meta">
-                        {item.label} · {item.view!.track.name} {item.view!.code}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- 方向速览：一屏看完 13 个方向，每行三个小格 = 三层的篇数 -->
-  <section class="band">
-    <div class="container">
-      <div class="band-head">
-        <h2>方向速览</h2>
-        <p class="note">
-          三个小格依次是概念、实践、贯通；有数字就是已经写了，
-          没有就是还空着——<a href="/tracks/">空格子谁都能认领</a>。
-        </p>
+        <h2>方向</h2>
+        <a href="/tracks/">全部方向</a>
       </div>
 
       <ul class="track-grid">
         {
-          TRACKS.map((track) => {
+          homeTracks.map((track) => {
             const cells = cellsOf(track.slug);
             return (
               <li>
@@ -162,7 +66,6 @@ const cellsOf = (slug: string) =>
                   <a class="track-grid__name" href={`/tracks/${track.slug}/`}>
                     {track.name}
                   </a>
-                  <span class="track-grid__blurb">{track.blurb}</span>
                 </div>
                 <div class="coverage">
                   {STAGE_IDS.map((stage) => (
@@ -195,7 +98,7 @@ const cellsOf = (slug: string) =>
     </div>
   </section>
 
-  <!-- 随笔：工程之外的空间 -->
+  <!-- 随笔 -->
   {
     recentEssays.length > 0 && (
       <section class="band band--tight">
@@ -204,9 +107,6 @@ const cellsOf = (slug: string) =>
             <h2>随笔</h2>
             <a href="/essays/">全部随笔（{essays.length} 篇）</a>
           </div>
-          <p class="note" style="margin-bottom: 0.75rem;">
-            工程之外的那部分：怎么选课、怎么安排时间、怎么在信息不足时做决定。
-          </p>
           <ul class="note-list">
             {recentEssays.map((view) => <EssayRow view={view} showTopic />)}
           </ul>
@@ -215,13 +115,13 @@ const cellsOf = (slug: string) =>
     )
   }
 
-  <!-- 参与的入口收成一行，不再单独占一块 -->
+  <!-- 参与 -->
   <section class="band band--tight">
     <div class="container">
       <p class="note">
-        缺的那些格子都留在原地，谁先搞明白谁先写。
-        <a href={LINKS.newIssue} rel="noopener">开一个 issue 认领</a>，
-        或者先看<a href="/about/#write">写作规范</a>。
+        空着的格子可以认领。
+        <a href={LINKS.newIssue} rel="noopener">认领这一格</a>
+        ，或先看<a href="/about/#write">写作规范</a>。
       </p>
     </div>
   </section>

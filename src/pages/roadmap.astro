@@ -9,12 +9,15 @@ const views = await getPostViews();
 const essays = await getEssayViews();
 
 /** 每个方向里挑一篇作为入口：优先概念层，没有就取这个方向最早的一篇 */
-const entries = TRACKS.map((track) => {
-  const inTrack = views.filter((view) => view.post.data.track === track.slug);
-  const first = inTrack.find((view) => view.stage === 'concept') ?? inTrack[0];
-  return { track, first };
-}).filter((entry) => entry.first !== undefined);
+const entries = TRACKS.filter((track) => track.slug !== 'hardware')
+  .map((track) => {
+    const inTrack = views.filter((view) => view.post.data.track === track.slug);
+    const first = inTrack.find((view) => view.stage === 'concept') ?? inTrack[0];
+    return { track, first };
+  })
+  .filter((entry) => entry.first !== undefined);
 
+/** 导读默认导向 env → git → github；hardware 仍在方向索引，此处不突出 */
 const beginner = entries.filter((entry) => entry.first!.stage === 'concept').slice(0, 4);
 ---
 
@@ -61,7 +64,7 @@ const beginner = entries.filter((entry) => entry.first!.stage === 'concept').sli
         <p class="note">适合「概念我懂，就是没动过手」。</p>
       </div>
       <p class="note">
-        如果你已经在课上听过原理，直接跳到实践层。反过来，如果照着一个教程做过但说不清为什么，
+        如果你已经把原理弄清楚了，直接跳到实践层。反过来，如果照着教程做过但说不清为什么，
         回概念层把模型补上，比再抄一遍命令管用。
       </p>
       <ul class="tag-list" style="margin-top: 1rem;">
@@ -81,7 +84,7 @@ const beginner = entries.filter((entry) => entry.first!.stage === 'concept').sli
         <p class="note">适合「我想做个东西，但不知道自己还缺什么」。</p>
       </div>
       <p class="note">
-        贯通层写的是几个方向连起来用的场景。先看那篇，遇到不懂的地方再顺着链接补前置——
+        贯通层写的是几个方向连起来用的场景。先看那篇，遇到不懂的地方再顺着链接补前置。
         这条路比按顺序刷快，也是真实项目里补知识的方式。
       </p>
       {
@@ -103,7 +106,7 @@ const beginner = entries.filter((entry) => entry.first!.stage === 'concept').sli
       <div class="band-head">
         <h2>先读这几篇</h2>
         <p class="note">
-          每个方向里最靠前的那一篇概念笔记。还没有任何笔记时这一块会空着——
+          每个方向里最靠前的那一篇概念笔记。还没有任何笔记时这一块会空着，
           那就先去<a href="/tracks/">方向</a>挑一个题目来写。
         </p>
       </div>
@@ -149,7 +152,7 @@ const beginner = entries.filter((entry) => entry.first!.stage === 'concept').sli
         <a href="/essays/">全部随笔（{essays.length} 篇）</a>
       </div>
       <p class="note">
-        工程笔记要求能复现；随笔不承诺这个——它写的是判断和感受：
+        工程笔记要求能复现；随笔不承诺这个。它写的是判断和感受：
         怎么选课、怎么安排时间、怎么在信息不足时做决定。
       </p>
     </div>
@@ -159,7 +162,7 @@ const beginner = entries.filter((entry) => entry.first!.stage === 'concept').sli
     <div class="container">
       <h2>这个站不写什么</h2>
       <p class="note" style="margin-top: 0.6rem;">
-        不写考点速查、不写「三天精通」、不写只为面试存在的八股。原理课上有老师讲得比我们好，
+        不写考点速查、不写「三天精通」、不写只为面试存在的八股。原理别处已经讲清楚的，我们不重复；
         我们只补另一半：把它用到能跑起来的代码里，会遇到什么。
       </p>
       <p class="note" style="margin-top: 0.6rem;">

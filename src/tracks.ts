@@ -81,13 +81,7 @@ export const TRACKS: Track[] = [
     why: '课上直接给虚拟机或机房机器。自己那台电脑上「命令找不到」「装在哪」这些事，没人讲过。',
     plan: {
       concept: [],
-      // 实践层已经有两篇（环境搭建、dotfiles 第一版），还能继续往下写
-      practice: [
-        {
-          title: '包管理器与版本管理：把「装了什么」也管起来',
-          note: 'brew bundle / apt-mark showmanual，让重装机器变成一条命令。',
-        },
-      ],
+      practice: [],
       integration: [
         {
           title: '一台新机器，半小时恢复到能干活',

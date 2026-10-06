@@ -42,26 +42,26 @@ export const FOOTER_GROUPS = [
     links: [
       { href: '/tracks/env/', label: '环境与命令行', external: false },
       { href: '/tracks/git/', label: 'Git', external: false },
-      { href: '/tracks/backend/', label: '后端', external: false },
-      { href: '/tracks/agent/', label: 'Agent 与 LLM 工具链', external: false },
+      { href: '/tracks/github/', label: 'GitHub 与协作', external: false },
+      { href: '/tracks/editor/', label: '编辑器与 Vim', external: false },
       { href: '/tracks/', label: '全部方向', external: false },
     ],
   },
   {
     title: '读点什么',
     links: [
-      { href: '/roadmap/', label: '怎么读这个站', external: false },
+      { href: '/roadmap/', label: '怎么读', external: false },
       { href: '/blog/', label: '全部笔记', external: false },
       { href: '/essays/', label: '随笔', external: false },
-      { href: LINKS.rss, label: 'RSS 订阅', external: false },
+      { href: LINKS.rss, label: 'RSS', external: false },
     ],
   },
   {
     title: '参与',
     links: [
       { href: LINKS.github, label: 'GitHub 组织', external: true },
-      { href: LINKS.issues, label: '未完成的题目', external: true },
-      { href: LINKS.newIssue, label: '认领一个方向', external: true },
+      { href: LINKS.issues, label: '待写题目', external: true },
+      { href: LINKS.newIssue, label: '认领这一格', external: true },
       { href: '/about/#write', label: '写作规范', external: false },
     ],
   },

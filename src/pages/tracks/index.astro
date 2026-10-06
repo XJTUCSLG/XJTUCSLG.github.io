@@ -14,25 +14,15 @@ const planned = plannedCount();
 
 <BaseLayout
   title="方向"
-  description="XJTUCSLG 101 的全部方向：环境与命令行、Git、GitHub 协作、编辑器、后端、前端、数据库、部署、测试调试、Agent 工具链，每个方向都标明概念、实践、贯通三层写到哪了。"
+  description="XJTUCSLG 101 的全部方向。每个方向分概念、实践、贯通三层，并标明写到哪了。"
 >
   <div class="container">
     <header class="masthead">
       <h1>方向</h1>
       <p class="lead">
-        一共 {coverage.length} 个方向，每个方向分概念、实践、贯通三层。已经写好的笔记给链接，
-        还没写的题目留在原地——灰着的那部分就是可以认领的活。
+        一共 {coverage.length} 个方向，每个方向分概念、实践、贯通三层。
+        已写 {written} 篇，待写 {planned} 题；写好的有链接，灰着的空位可以认领。
       </p>
-      <dl class="tally">
-        <div>
-          <dt>已写笔记</dt>
-          <dd>{written}</dd>
-        </div>
-        <div>
-          <dt>待写题目</dt>
-          <dd>{planned}</dd>
-        </div>
-      </dl>
     </header>
   </div>
 
@@ -54,7 +44,6 @@ const planned = plannedCount();
                     <a href={`/tracks/${track.slug}/`}>{track.name}</a>
                   </h3>
                   <p class="track-brief__blurb">{track.blurb}</p>
-                  <p class="track-brief__why">{track.why}</p>
                 </div>
                 <StageCells row={row} />
               </article>
@@ -67,7 +56,7 @@ const planned = plannedCount();
 
   <section class="band">
     <div class="container">
-      <h2>一个方向的三层，是什么意思</h2>
+      <h2>三层分别是什么</h2>
       <ol class="stage-list" style="margin-top: 1.25rem;">
         {
           STAGE_IDS.map((stage) => (

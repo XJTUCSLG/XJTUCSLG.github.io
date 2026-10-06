@@ -21,6 +21,9 @@ const recentEssays = essays.slice(0, 2);
 /** 方向速览里用的小格：每层已写几篇 */
 const cellsOf = (slug: string) =>
   coverage.find((row) => row.track.slug === slug)!.cells;
+
+/** 首页速览不突出 hardware；完整列表仍在 /tracks/ */
+const homeTracks = TRACKS.filter((track) => track.slug !== 'hardware');
 ---
 
 <BaseLayout title="首页" description={SITE.description} isHome>
@@ -29,7 +32,7 @@ const cellsOf = (slug: string) =>
     <div class="container">
       <h1>课上没讲的那一半</h1>
       <p class="lead">
-        命令行、Git、后端、前端、部署——写项目天天用，课上却很少系统讲。这里是西交开源社区同学在补的笔记。
+        命令行、Git、前后端和部署，写项目天天用，课上却很少系统讲。这里是西交开源社区同学在补的笔记。
       </p>
 
       <div class="btn-row masthead__actions">
@@ -55,7 +58,7 @@ const cellsOf = (slug: string) =>
 
       <ul class="track-grid">
         {
-          TRACKS.map((track) => {
+          homeTracks.map((track) => {
             const cells = cellsOf(track.slug);
             return (
               <li>
@@ -116,8 +119,8 @@ const cellsOf = (slug: string) =>
   <section class="band band--tight">
     <div class="container">
       <p class="note">
-        空着的格子谁都能认领。
-        <a href={LINKS.newIssue} rel="noopener">开 issue</a>
+        空着的格子可以认领。
+        <a href={LINKS.newIssue} rel="noopener">认领这一格</a>
         ，或先看<a href="/about/#write">写作规范</a>。
       </p>
     </div>

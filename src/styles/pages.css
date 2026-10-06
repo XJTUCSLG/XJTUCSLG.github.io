@@ -5,7 +5,7 @@
 /* ============================ 刊头 ============================ */
 
 .masthead {
-  padding-block: clamp(1.25rem, 2.5vw, 2rem) 1.25rem;
+  padding-block: clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 3vw, 2.25rem);
 }
 
 .masthead h1 {
@@ -47,7 +47,12 @@
 
 .masthead > .container > .btn-row,
 .masthead .masthead__actions {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
+}
+
+.masthead__updated {
+  margin: 0.85rem 0 0;
+  font-size: var(--fs-sm);
 }
 
 /* ============================ 起步路线 ============================ */
@@ -183,7 +188,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding: 0.7rem 0.75rem 0.7rem 0;
   border-bottom: 1px solid var(--rule);
 }
 

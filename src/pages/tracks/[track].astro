@@ -59,8 +59,8 @@ const claimLink = (stage: (typeof STAGE_IDS)[number]) =>
       </dl>
 
       <p class="note">
-        每一层都可以放很多篇，每篇是独立的文件，写一篇发一篇，不用凑齐。
-        层内的编号（1.1、1.2）就是阅读顺序，新写的一篇接在末尾。
+        每一层都可以放很多篇，篇与篇是独立文件。写一篇发一篇，不用凑齐。
+        层内编号（1.1、1.2）就是阅读顺序，新写的一篇接在末尾。
       </p>
     </header>
   </div>
@@ -91,7 +91,7 @@ const claimLink = (stage: (typeof STAGE_IDS)[number]) =>
 
             {plan.length > 0 && (
               <>
-                <p class="plan-label">这一层排着队、还没人写的题目</p>
+                <p class="plan-label">待写题目</p>
                 <ul class="plan-list">
                   {plan.map((item) => (
                     <li class="plan-item">
@@ -104,8 +104,8 @@ const claimLink = (stage: (typeof STAGE_IDS)[number]) =>
             )}
 
             <p class="note" style="margin-top: 0.6rem;">
-              {written.length === 0 ? '这一层还没开张。' : '这一层还能继续往下写。'}
-              <a href={claimLink(stage)} rel="noopener">认领这一格</a>。
+              {written.length === 0 ? '这一层还空着。' : '这一层还能继续写。'}
+              <a href={claimLink(stage)} rel="noopener">认领这一格</a>
             </p>
           </div>
         </section>

@@ -227,7 +227,7 @@ export const TRACKS: Track[] = [
     name: '部署与运维',
     group: 'engineering',
     blurb: '让代码在别人的机器上一直跑着。',
-    why: '课程作业跑在自己电脑上就算完成。上线之后的进程、域名、证书和备份，全在课外。',
+    why: '代码在自己电脑上能跑只是开始。上线之后还要管进程、域名、证书和备份。',
     plan: {
       concept: [
         { title: '服务器上跑起来需要哪些东西', note: '进程、端口、环境变量、反向代理，一次讲清。' },
@@ -274,7 +274,7 @@ export const TRACKS: Track[] = [
     slug: 'cs',
     name: '计算机基础',
     group: 'foundation',
-    blurb: '数据结构、复杂度和内存。课程会讲原理，这里讲它们在项目里的用法。',
+    blurb: '数据结构、复杂度和内存，以及它们在项目里怎么用。',
     why: '原理课给的是分析工具。真写代码时，它是「这么存合不合适」的判断依据。',
     plan: {
       concept: [],

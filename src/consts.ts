@@ -8,7 +8,7 @@ export const SITE = {
   name: 'XJTUCSLG 101',
   /** 一句话说明，用于 SEO 与分享卡片 */
   description:
-    '西交大学生开源社区（非官方）写的工程笔记：命令行、Git、后端、前端、部署这些课上少讲、写项目却天天用的东西。',
+    '西交大学生开源社区（非官方）写的工程笔记：命令行、Git、后端、前端、部署——写项目天天用的那部分。',
   url: 'https://xjtucslg.github.io',
   lang: 'zh-CN',
   /** 版权行旁边的说明 */

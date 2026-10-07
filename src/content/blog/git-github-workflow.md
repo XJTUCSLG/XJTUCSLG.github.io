@@ -2,7 +2,7 @@
 title: 用 Git 管住代码：提交、回退与协作
 description: 从没用过 Git 的人看完这篇，会知道为什么写代码需要记录每一次改动，Git 在每天的开发流程里站在哪个位置，以及什么时候提交、什么时候推送、搞砸了怎么退。
 pubDate: 2025-11-08
-authors: ['lychee', 'moyu']
+authors: ['ocean']
 track: git
 stage: concept
 tags: ['版本控制', '协作']

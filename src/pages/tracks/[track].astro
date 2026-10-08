@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getGuides } from '../../lib/guides';
 import NoteRow from '../../components/NoteRow.astro';
 import { LINKS } from '../../consts';
 import { coverageOf, getPostViews, type PostView } from '../../lib/posts';
@@ -12,6 +13,9 @@ export async function getStaticPaths() {
 
 const { track } = Astro.props;
 
+const guides = (await getGuides()).filter((guide) => guide.data.track === track.slug);
+if (guides.length > 1) throw new Error(`方向 ${track.slug} 只能有一篇起步导读`);
+const guide = guides[0];
 const views = await getPostViews();
 const row = coverageOf(track, views);
 
@@ -38,6 +42,14 @@ const claimLink = (stage: (typeof STAGE_IDS)[number]) =>
       <h1>{track.name}</h1>
       <p class="lead">{track.blurb}</p>
       <p class="note">{track.why}</p>
+
+      {guide && (
+        <aside class="related" aria-labelledby="start-here">
+          <h2 id="start-here">从这里开始</h2>
+          <p><a href={`/guides/${guide.id}/`}>{guide.data.title}</a></p>
+          <p class="note">{guide.data.description}</p>
+        </aside>
+      )}
 
       <dl class="tally">
         <div>

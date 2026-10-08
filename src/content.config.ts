@@ -67,4 +67,19 @@ const essays = defineCollection({
   }),
 });
 
-export const collections = { blog, essays };
+/** 起步导读独立于工程笔记编号、列表与 RSS。 */
+const guides = defineCollection({
+  loader: glob({ base: './src/content/guides', pattern: '**/*.{md,mdx}' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    authors: z.array(z.string()).default([]),
+    track: z.enum(['env', 'git', 'github']),
+    minutes: z.number().int().positive().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, essays, guides };

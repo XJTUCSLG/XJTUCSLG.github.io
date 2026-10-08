@@ -9,7 +9,7 @@ Agent 工具链这些写项目每天都在用、却没人开课的东西。工�
 
 ## 内容模型
 
-站上有两个集合，互不干扰。
+站上有三个集合，互不干扰。
 
 ### 一、工程笔记：方向 × 三层（`src/tracks.ts`）
 
@@ -28,6 +28,15 @@ Agent 工具链这些写项目每天都在用、却没人开课的东西。工�
 - 不参与方向 × 三层，编号也不适用；列表页按栏目分组，详情页只有栏目和作者。
 - 写作宽容度更高：不要求能复现，但要求有一句自己的判断。模板见 `src/content/_essay-template.md`。
 
+### 三、起步导读（`src/content/guides/`）
+
+- 独立 `guides` 集合，`track` 仅接受 `env` / `git` / `github`；每个方向最多一篇。
+- 对应方向页顶部固定展示「从这里开始」，链接到 `/guides/[...id]/`，沿用文章布局、元数据表和 h2/h3 目录。
+- 导读只组织阅读路线、前置与验收，不进入工程笔记层内编号、统计、列表、相关推荐或 RSS；RSS 仍只收录工程笔记与随笔。
+- 已有导读：[环境与命令行](src/content/guides/environment-and-command-line.md)、[Git](src/content/guides/git.md)、[GitHub 与协作](src/content/guides/github-and-collaboration.md)。正文互链使用真实的 `/guides/.../` URL，待写专题不伪装成链接。
+- 元数据：必填 `title`、`description`、`pubDate`、`track`；可选 `authors`、`updatedDate`、`minutes`、`draft`。生产构建不收录草稿，也不显示其方向页入口。
+- 添加或修改后执行 `npm run check`、`npm run build`，用 `npm run preview` 检查导读页、目录锚点、正文链接和三个方向页入口，并确认 `dist/rss.xml` 与 `/blog/` 未收录导读。
+
 选题依据见 [`research/reference-101-sites.md`](research/reference-101-sites.md)（对标 MIT Missing Semester、
 中科大 Linux 101、csdiy、OSSU、roadmap.sh、opensource.guide 等 18 个站点）与
 [`research/design-notes.md`](research/design-notes.md)（设计方向与取舍）。
@@ -35,7 +44,7 @@ Agent 工具链这些写项目每天都在用、却没人开课的东西。工�
 ## 技术栈
 
 - [Astro](https://astro.build/) v7（静态输出，零客户端框架）
-- Astro Content Collections 管理两份内容（frontmatter 用 Zod 校验）
+- Astro Content Collections 管理三份内容（frontmatter 用 Zod 校验）
 - Shiki 自定义主题 `xjtucslg-ink`（`src/lib/shiki-theme.mjs`）+ 客户端 mermaid 渲染
 - 手写 CSS 设计令牌，无 UI 框架、无预处理器、无外部字体
 - 部署：GitHub Pages（`main` 分支推送后自动构建）
@@ -72,9 +81,10 @@ npm run check    # 类型检查（astro check）
 src/
 ├─ tracks.ts               # 方向 × 三层的内容模型与「想写」题目（改选题先看这里）
 ├─ consts.ts               # 站点信息、导航、页脚、随笔栏目（改文案看这里）
-├─ content.config.ts       # 两个集合的 schema（blog / essays）
+├─ content.config.ts       # 三个集合的 schema（blog / essays / guides）
 ├─ content/blog/           # 工程笔记（Markdown）
 ├─ content/essays/         # 随笔（Markdown）
+├─ content/guides/         # 起步导读（独立于编号和 RSS）
 ├─ content/_template.md         # 工程笔记模板（在集合目录之外，不会被收录）
 ├─ content/_essay-template.md   # 随笔模板
 ├─ layouts/BaseLayout.astro     # 含 mermaid 的按需渲染脚本
@@ -83,6 +93,7 @@ src/
 │  ├─ format.ts            # 日期、阅读时长、排序
 │  ├─ posts.ts             # 工程笔记：查表、编号、上下篇、相关推荐
 │  ├─ essays.ts            # 随笔：查询、按栏目分组
+│  ├─ guides.ts            # 起步导读：独立查询与草稿过滤
 │  └─ shiki-theme.mjs      # 代码高亮主题
 ├─ pages/
 │  ├─ index.astro          # 首页：刊头 + 起步路线 + 方向速览 + 最近写的 + 随笔
@@ -92,6 +103,7 @@ src/
 │  ├─ blog/[...id].astro   # 工程笔记详情（信息表、目录、上一篇/下一篇）
 │  ├─ essays/index.astro   # 随笔列表（按栏目分组）
 │  ├─ essays/[...id].astro # 随笔详情
+│  ├─ guides/[...id].astro # 起步导读详情（布局与目录沿用笔记样式）
 │  ├─ roadmap.astro        # 怎么读这个站
 │  ├─ about.astro          # 关于 / 加入 / 写作规范
 │  ├─ 404.astro

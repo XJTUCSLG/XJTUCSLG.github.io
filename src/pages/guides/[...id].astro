@@ -1,0 +1,71 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LINKS } from '../../consts';
+import { formatDate, isoDate, readingMinutes } from '../../lib/format';
+import { getGuides } from '../../lib/guides';
+import { findTrack } from '../../tracks';
+
+export async function getStaticPaths() {
+  return (await getGuides()).map((guide) => ({ params: { id: guide.id }, props: { guide } }));
+}
+
+const { guide } = Astro.props;
+const track = findTrack(guide.data.track);
+const { Content, headings } = await render(guide);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const meta = [
+  { label: '这篇是', value: `${track.name} · 起步导读（不参与层内编号）` },
+  { label: '作者', value: guide.data.authors.join('、') || '社区同学' },
+  { label: '发布于', value: formatDate(guide.data.pubDate), datetime: isoDate(guide.data.pubDate) },
+  ...(guide.data.updatedDate
+    ? [{ label: '修订', value: formatDate(guide.data.updatedDate), datetime: isoDate(guide.data.updatedDate) }]
+    : []),
+  { label: '阅读', value: `${guide.data.minutes ?? readingMinutes(guide.body)} 分钟` },
+];
+---
+
+<BaseLayout title={guide.data.title} description={guide.data.description} ogType="article">
+  <div class="container">
+    <header class="article-head">
+      <nav class="crumb" aria-label="位置">
+        <ol>
+          <li><a href="/tracks/">方向</a></li>
+          <li><a href={`/tracks/${track.slug}/`}>{track.name}</a></li>
+          <li>起步导读</li>
+        </ol>
+      </nav>
+      <h1>{guide.data.title}</h1>
+      <p class="standfirst">{guide.data.description}</p>
+      <table class="meta-table">
+        <tbody>
+          {meta.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              <td>{row.datetime ? <time datetime={row.datetime}>{row.value}</time> : row.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </header>
+    <div class="article-layout">
+      <article class="prose"><Content /></article>
+      {toc.length > 2 && (
+        <nav class="toc" aria-labelledby="toc-title">
+          <h2 class="toc__title" id="toc-title">本页内容</h2>
+          <ul>
+            {toc.map((heading) => (
+              <li class={`depth-${heading.depth}`}><a href={`#${heading.slug}`}>{heading.text}</a></li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+    <p class="article-foot">
+      返回<a href={`/tracks/${track.slug}/`}>{track.name}方向</a>继续阅读分层笔记。
+      发现写错或版本过时？
+      <a href={`${LINKS.repo}/blob/main/src/content/guides/${guide.id}.md`} rel="noopener">在 GitHub 上直接改这一页</a>，
+      或者<a href={LINKS.newIssue} rel="noopener">提一个 issue</a>。
+    </p>
+  </div>
+</BaseLayout>
